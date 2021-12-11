@@ -1,0 +1,10 @@
+numpy
+pandas
+scipy
+tqdm
+tifffile
+matplotlib
+pyyaml
+seaborn
+scikit-image
+parfor

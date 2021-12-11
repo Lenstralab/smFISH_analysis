@@ -1,0 +1,223 @@
+### Parameters for FISH_pipeline.py script
+
+#########################################################################################################
+#########################################################################################################
+
+#### specify input and output folder
+#  -folderIn: full path on input folder with raw data, containing experiments you want to analyze. Example: "/DATA/lenstra_lab/XXXX/livecell_data/20200219/"
+#  -fileListIn: list of specific experiment folder in the folderIn you want to analyze. Example: ["20200120_smFISH/YTL870B1_PP7-Cy3_MS2-Cy5_1", "20200120_smFISH/YTL870B1_PP7-Cy3_MS2-Cy5_2"]
+#  -outputfolder: full path of outputfolder. Example: "/DATA/lenstra_lab/XXXX/smFISH_analysis/"
+#  -analysisfolder: full path of folder where violin plots will be written. Example: "/DATA/lenstra_lab/XXXX/smFISH_analysis/analysis"
+
+folderIn: "/DATA/lenstra_lab/shared/smFISH_testdata/Bibi/"
+fileListIn:
+  ["20191024/1_WaplAID_mESC_0hAuxin_25July2019_3D_rep1_2"]
+#  ["/20191024/4_WaplAID_mESC_6hAuxin_25July2019_3D_rep1_1"]
+
+outputfolder: "/DATA/lenstra_lab/t.lenstra/FISH_analysis/test_Marit"
+analysisfolder: "/DATA/lenstra_lab/t.lenstra/FISH_analysis/test_Marit"
+
+### specify how many images per experiment and channels you want to analyze
+#  -processAll: 1 if you want to process all images (FOV) in the folder, if 0, specify nr of files you want to analyze
+#  -nrFilesToAnalyze: specify number of images you want to analyze. Only works if processAll is 0
+#  -channelsToAnalyze: [0,1] ### list of channels to analyze in: 0 = Cy3, 1 = Cy5.
+
+processAll: 1
+nrFilesToAnalyze: 0
+channelsToAnalyze: [0,1]
+
+#### specify which part of the code you want to run
+#  -MaxProj: 0 or 1. note: If manually made with FIJI, order or channels may be different.
+#  -RunCellprofiler: 0 or 1. Runs cell profiler with pipeline specified at PipelineCellProfiler. You can also make masks with RunCellprofiler
+#  -RunFindCells: 0 or 1. Makes cell mask.
+#  -RunOptimizeThresh: 0 or 1. Makes graphs to determine threshold for localization of spots.
+#  -RunLocalize: 0 or 1. To find the localization spots (needs max.tif)
+#  -MakeMaskImage: 0 or 1. Makes image with max, cellmask (from RunCellprofiler or RunFindCells) and spots for checking.
+#  -MakeMontage: 0 or 1. Makes montage of all FOV of max and cell masks.
+#  -CalculateTranscriptionSites: 0 or 1. Calculates which spot is the TS
+#  -MakeHistogram: 0 or 1. Makes histograms of nr spots per cell/nucleus and intensity of TS. Note, run with same parameters as CalculateTranscriptionSites.
+#  -CalcSingleCellCorr: 0 or 1. Calculates correlation between nr spots per cell and TS intensity within single cells, and between channels
+#  -Violins: 0 or 1. Makes violin and boxplots of all experiments in a single graph. Output will be written to analysisfolder
+#  -CompareNormValues: 0 or 1. Makes a bargraph of the normalization values of all experiments.
+#  -CombineReps: 0 or 1. Combine replicates and make histograms and violin plots (optional)
+#  -UsePrecalcDistr: 0 or 1. To use precalculated histogram distributions
+
+MaxProj: 1
+RunCellprofiler: 0
+RunFindCells: 1
+RunOptimizeThresh: 0
+RunLocalize: 1
+MakeMaskImage: 1
+MakeMontage: 1
+CalculateTranscriptionSites: 1
+MakeHistograms: 1
+CalcSingleCellCorr: 1
+Violins: 1
+CompareNormValues: 1
+CombineReps: 0
+UsePrecalcDistr: 0
+
+##### Parameters max projection
+#  -zSlices: nr z slices, example: 9
+#  -nChannels: nr channels including DAPI channel, example for cy3-cy5-DAPI data: 3
+
+zSlices: 47
+nChannels: 3
+
+##### Parameters for RunCellprofiler
+#  -PipelineCellProfiler: full path of cellprofiler pipeline. Only necessary if RunCellprofiler is run.
+
+PipelineCellProfiler:
+
+##### Parameters FindCells
+#  -channelCellMask: "Cy3" or "Cy5". Choose Cy3 or Cy5 for cell segmentation
+#  -ccdist: (approximate) minimum distance between the centers of cells, good values: yeast: 25, mammalian: 150
+#  Optional parameters to debug/finetune findcells:
+#  -threshold : pixel value used to threshold the image, default:Otsu. To use default, type: None
+#  -thresholdnuc : pixel value used to threshold the image with nuclei, default:Otsu. To use default, type: None
+#  -removeborders : remove any cells (and their nuclei) touching any borders (case with nan's unhandled atm), default: True
+#  -thres: divide the image in thres x thres blocks and use a different threshold in each of them, the image size should be an integer multiple of thres. Example: 1
+#  -thresnuc: example: 1
+#  -smooth: smooth the image before using it, example: 5
+#  -smoothnuc: example: 3
+#  -minfeatsize: remove features smaller than minfeatsize
+#  -minfeatsizenuc: example: 5
+#  -dilate: dilate>0: make every cell dilate pixels larger; <0: make them smaller
+#  -dilatenuc: example: 3
+
+channelCellMask : "Cy5"
+ccdist : 70
+threshold : None
+thresholdnuc : None
+removeborders : True
+thres : 1
+thresnuc : 1
+smooth : 6
+smoothnuc : 6
+minfeatsize : 20
+minfeatsizenuc : 20
+dilate : 0
+dilatenuc : 0
+
+##### Parameters Localize
+#  -localizeDim : "2D" or "3D". For 3D, preferably image with 0.3 um z step and take more frames above and below cell for fitting.
+#  -threshold_cy3: threshold for Cy3 channel, example: 75
+#  -threshold_cy5: threshold for Cy5 channel, example: 50
+#  -psfPx:2.18 # PSF width in pixels. Can be calculated by: (wavelength emitted light * magnification) / (2 * NA objective * camera pixel size). NA objective 40x = 1.4. camera pixel size = 6500 nm. With 40x objective with optovar 1.25, psfPx = 1.70 (cy3 = 1.57 /cy5 = 1.84), for 40x objective with optovar 1.6, pxfPx = 2.18 (cy3 = 2.0 /cy5 = 2.36)
+#  -psfPxZ : PSF in z in pixels. Can be calculated by: (wavelength * RI of mounting media) / ((NA objective)^2 * zstep). RI  = 1.47 for prolong gold. NA objective 40x = 1.4. For 40x objective, 500 nm zstep, psfZPx = 0.93 (cy3 = 0.855, cy5 = 1.005)
+#  -maxDist: Maximal distance tolerated between guess and fit (in PSF width), example: 3.
+#  -minSeparation: Minimal distance tolerated between two spots (in PSF width), example: .1
+#  -winSize:  size of the window used for PSF fitting, example: 5
+#  -winSizeZ: size of the window used for PSF fitting in z, example: 3
+
+localizeDim : "2D"
+threshold_cy3: 21
+threshold_cy5: 16
+psfPx: 2.18
+psfPxZ : 1.46
+maxDist: 3.
+minSeparation: .1
+winSize : 5
+winSizeZ : 5
+
+##### Parameters Calculate TS
+#  -MaskTS : "nucleus " or "cell". Mask used for defining the TS (brightest spot)
+#  -AreaNorm : "cyto", "nucleus" or "cell". Area used for the normalizing spots. "cyto" means in cell but not in nucleus, "nucleus" mean nucleus and "cell" means entire cell including nucleus.
+#  -ExclEmpty : 0 or 1. excludes cells that are completely empty, no RNAs in either nucleus or cytoplasm. Uses channel that is analyzed to determine if cell is empty. If you want to use another channel, set ExlcEmpty 0 and set parameter useControlForEmptyCells to 1.
+#  -useControlForEmptyCells : 0 or 1 . Uses control hybridization (can be other channel) to determine whether cell is empty (no RNA in cell or nucleus). Removes these cells from analysis in all colors. Set control channel with parameter controlColor. Can only be used if ExclEmpty: 0
+#  -controlColor: 0 or 1. 0 = Cy3, 1 = Cy5. Set which probe set is control. Is used if useControlForEmptyCells is 1.
+#  -useFit: 0 or 1 # if 1: normalize TS distribution by intensity from fit of the cytoplasmic intensity distribution with a gaussian model. If 0: normalize TS distribution by median intensity cytoplasmic spots
+#  -useNormValue : 0 or 1. Set to 1 if you would like to make additional histograms in which the normalization constant (intensity of single RNA) is user-defined
+#  -NormValueCy3 : Set user-defined normValue for Cy3 (if useNormValue is 1). Recommended that you obtain value based on 'cyto-distribution' histogram for Cy3 channel. Example: 13384.
+#  -NormValueCy5 : Set user-defined normValue for Cy5 (if useNormValue is 1). Recommended that you obtain value based on 'cyto-distribution' histogram for Cy5 channel. Example: 4421.
+#  -includeMultTS : 0, 1 or 2. 0 for one TS per nucleus, 1 for multiple TS per nucleus using threshold (specify thresholdTS), 2 for multiple TS per nucleus by fixed amount (specify nrTS2Include).
+#  -thresholdTS : threshold used to determine if nuclear spot is TS (if includeMultTS is 1). The threshold indicates how many nascent RNAs need to present to qualify as TS (it is is multiplied by the normalization factor of the cytoplasmic spot intensity). Note, the results do not contain the cells without TS. Example: 1.5
+#  -nrTS2Include :number of TS to include in the analysis (if includeMultTS is 2). It will select the brightest spots as TS. Note, if less TS are found in a nucleus, the script will add a zero (so each cell will have same nr of TS). Example: 2
+
+MaskTS: "nucleus"
+AreaNorm: "cell"
+ExclEmpty: 0
+useControlForEmptyCells: 1
+controlColor: 1
+useFit: 0
+useNormValue: 0
+NormValueCy3: 13384
+NormValueCy5: 4421
+includeMultTS: 2
+thresholdTS: 2.5
+nrTS2Include: 2
+
+##### Parameters histogram
+#  -exclBins: nr bins to exclude for normalizing and plotting (and fitting) TS intensity histograms (1 means that the first (zero) bin will be exluded, 2 means that the first 2 (0 and 1) bins will be excluded, etc).
+#  -exclBinsCount: nr bins to exclude for plotting and calculating statistics on the cell and nuclear count histograms (1 means that the first (zero) bin will be exluded, 2 means that the first 2 (0 and 1) bins will be excluded, etc). This value is not used for the TS count distribution.
+#  -FitBurst: 0 or 1. Fitting of TS distribution with bursting model (negative bionomial from Raj, Plos Genetics).
+#  -FitPoisson: 0 or 1. Fitting models with Poisson model (assuming no bursting).
+#  -CalcFracOff: 0 or 1. Calculates the fraction of cells that are transcriptionally silent; only relevant if exclBins = 0, exclBinsCount = 0 and ExclEmpty = 1
+#  -nrbins_cy3: nr bins for cellular and nuclear count hist cy3, example: 100
+#  -nrbins_cy5: nr bins for cellular and nuclear count hist cy5, example: 100
+#  -nrbins_cy3_ts: nr bins for TS intensity hist, example: 15
+#  -nrbins_cy5_ts: for TS intensity hist, example: 15
+#  -freqAxisCell_cy3: scaling for y-axis of cellular count hist (automatically if "None"), example: 0.5 or "None"
+#  -freqAxisCell_cy5: scaling for y-axis of cellular count hist (automatically if "None"), example: 0.5 or "None"
+#  -freqAxisNuc_cy3: scaling for y-axis of nuclear count hist (automatically if "None"),example: 0.5 or "None"
+#  -freqAxisNuc_cy5: scaling for y-axis of nuclear count hist (automatically if "None"), example: 0.5 or "None"
+#  -freqAxisTS_cy3: scaling for y-axis of TS intensity (automatically if "None") , example: 0.5 or "None"
+#  -freqAxisTS_cy5: scaling for y-axis of TS intensity hist (automatically if "None"), example: 0.5 or "None"
+
+exclBins: 0
+exclBinsCount: 0
+FitBurst: 1
+FitPoisson: 1
+CalcFracOff: 0
+nrbins_cy3: 100
+nrbins_cy5: 300
+nrbins_cy3_ts: 15
+nrbins_cy5_ts: 15
+freqAxisCell_cy3 : "None"
+freqAxisCell_cy5 : "None"
+freqAxisNuc_cy3 : "None"
+freqAxisNuc_cy5 : "None"
+freqAxisTS_cy3 : "None"
+freqAxisTS_cy5 : "None"
+
+##### Parameters CalcSingleCellCorr
+#  -filterOnDistance: 0 or 1. Set to 1 if you want to filter on co-localized Cy3 - Cy5 spots, set threshold in distThresh
+#  -distThresh: threshold for determining co-localization, in pixels, example: 4
+#  -onoffThreshCy3: threshold to determine if cells are on or off in Cy3, example: 6
+#  -onoffThreshCy5: threshold to determine if cells are on or off in Cy5, example: 4
+#  -x_lim: max x value  for all TS correlation plots. Example: 50
+#  -y_lim: max y value for all TS correlation plotsl Example: 50
+
+filterOnDistance: 0
+distThresh: 4
+onoffThreshCy3: 6
+onoffThreshCy5: 4
+x_lim: 50
+y_lim: 50
+
+##### Parameters for Violin plots
+#  -pvalsViolins: indicates between which datasets you want to calculate pvalues to be plotted in Violin plots. Starts numbering at 1. Leave empty ([[]]) if you don't want any pvalues calculated. Example: [[1,2][3,4]]
+#  -yAxisViolinCell_cy3: scaling of y-axis of cellular violin plot Cy3 (automatically if "None"), example: 0.5 or "None"
+#  -yAxisViolinCell_cy5: scaling of y-axis of cellular violin plot Cy5 (automatically if "None"), example: 0.5 or "None"
+#  -yAxisViolinNuc_cy3: scaling of y-axis of nuclear violin plot Cy3 (automatically if "None"), example: 0.5 or "None"
+#  -yAxisViolinNuc_cy5: scaling of y-axis of nuclear violin plot Cy5 (automatically if "None"), example: 0.5 or "None"
+#  -yAxisViolinTS_cy3:  scaling of y-axis of TS violin plot Cy3, example (automatically if "None"): 0.5 or "None"
+#  -yAxisViolinTS_cy5:  scaling of y-axis of TS violin plot Cy5, example (automatically if "None"): 0.5 or "None"
+
+pvalsViolins: [[1]]
+yAxisViolinCell_cy3: "None"
+yAxisViolinCell_cy5: 600
+yAxisViolinNuc_cy3: "None"
+yAxisViolinNuc_cy5: 600
+yAxisViolinTS_cy3: 15
+yAxisViolinTS_cy5: 6
+
+##### Parameteres combine reps
+#  -repsToCombine:  #List how you want your replicates to be combined. Format as (for example) [[1,2,3],[4],[5,6]] etc. Make sure all dataset numbers are in this list; numbering starts at 1.
+
+repsToCombine: [[1]]
+CellCycle: 0
+fitNucHistogram: 0
+makeMasks: 0
+CellCycleStages: ['G1cells']
+manualThreshold: "None"
