@@ -1,5 +1,5 @@
 # smFISH_curie
-Lenstra labs code for single molecule FISH. This script uses Python 3.
+Lenstra labs code for single molecule FISH as used by Brouwer et al. This script uses Python 3.
 
 ## Installation
 Do this the first time only:
