@@ -1,12 +1,11 @@
-# smFISH_curie
+# smFISH
 Lenstra labs code for single molecule FISH as used by Brouwer et al. This script uses Python 3.
 
 ## Installation
 Do this the first time only:
 
-    git clone https://gitlab.rhpc.nki.nl/LenstraLab/smFISH_curie.git
-    cd smFISH_curie
-    pip install -e . --user
+    git clone https://github.com/Lenstralab/smFISH_analysis.git
+    pip install -e smFISH_analysis --user
 
 This will install the smfish package in your personal path in editable mode.
 

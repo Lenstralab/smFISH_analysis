@@ -9,11 +9,10 @@
 #  -outputfolder: full path of outputfolder. Example: "/DATA/lenstra_lab/XXXX/smFISH_analysis/"
 #  -analysisfolder: full path of folder where violin plots will be written. Example: "/DATA/lenstra_lab/XXXX/smFISH_analysis/analysis"
 
-folderIn: "/DATA/lenstra_lab/t.lenstra/FISH_data/"
-fileListIn: ["20190128_test/YTL047A_PP7-Cy3_1",
-             "20190128_test/YTL047B_PP7-Cy3_1" ]
-outputfolder: "/DATA/lenstra_lab/t.lenstra/FISH_analysis/"
-analysisfolder: "/DATA/lenstra_lab/t.lenstra/FISH_analysis/test_analysis/"
+folderIn: "demo_data/"
+fileListIn: ["20200107"]
+outputfolder: "demo_output"
+analysisfolder: "demo_output/analysis"
 
 ### specify how many images per experiment and channels you want to analyze
 #  -processAll: 1 if you want to process all images (FOV) in the folder, if 0, specify nr of files you want to analyze

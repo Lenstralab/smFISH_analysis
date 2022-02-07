@@ -153,7 +153,7 @@ def writestatsfile(outFilePart, color, distrCell, distrNuc, distrTS, params):
 #########################################################################################################
 #########################################################################################################
 
-def calculate_general_parameters(params):
+def calculate_general_parameters(params, parameter_file):
     def_params = misc.getConfig(os.path.join(os.path.split(os.path.split(os.path.abspath(__file__))[0])[0],
                               'FISH_pipeline_parameters_template.yml'))
     for k, v in def_params.items():
@@ -164,7 +164,11 @@ def calculate_general_parameters(params):
     params['lenfileListIn'] = len(params['fileListIn'])
     for i in range(0, params['lenfileListIn']):
         if params['fileListIn'][i][-1] != "/": params['fileListIn'][i] += "/"
-        params['fileListIn'][i] = params['folderIn'] + params['fileListIn'][i]
+        if os.path.exists(os.path.join(params['folderIn'], params['fileListIn'][i])):
+            params['fileListIn'][i] = os.path.join(params['folderIn'], params['fileListIn'][i])
+        else:
+            params['fileListIn'][i] = os.path.join(os.path.dirname(os.path.abspath(parameter_file)),
+                                                   params['folderIn'], params['fileListIn'][i])
 
     if params['outputfolder'][-1] != "/": params['outputfolder'] += "/"
 
@@ -2074,7 +2078,7 @@ def FISH_pipeline(params):
     else:
         parameter_file = ''
 
-    params = calculate_general_parameters(params)
+    params = calculate_general_parameters(params, parameter_file)
 
 
 

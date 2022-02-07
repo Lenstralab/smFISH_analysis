@@ -1,7 +1,6 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 
 import sys, os, yaml
-import numpy as np
 import smfish
 from smfish.FISH_pipeline import FISH_pipeline, get_exp_info, get_filelist
 import tllab_common
@@ -58,8 +57,7 @@ def make_test_FISH_pipeline(parameter_file):
         assert rawdistributions, 'rawdistributions not generated'
     return pipeline_fun
 
-test_Tineke  = make_test_FISH_pipeline('FISH_pipeline_test_Tineke.yml')
-test_Bibi  = make_test_FISH_pipeline('FISH_pipeline_test_Bibi.yml')
+test_demo  = make_test_FISH_pipeline('FISH_pipeline_test.yml')
 
 ## ----- This part runs the tests -----
     
