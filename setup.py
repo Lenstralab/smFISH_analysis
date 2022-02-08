@@ -25,7 +25,7 @@ setuptools.setup(
     tests_require=['pytest-xdist'],
     install_requires=['numpy', 'pandas', 'scipy', 'tqdm', 'tifffile', 'matplotlib', 'pyyaml', 'seaborn', 'scikit-image',
                       'parfor', 'lmfit', 'psutil', 'scikit-learn', 'rtree',
-                      'tllab_common@git+https://github.com/Lenstralab/tllab_common.git@45d5e61faffd39c4b4504745a8647253bd48f80d'],
+                      'tllab_common@git+https://github.com/Lenstralab/tllab_common.git@dbfe63427cabb3d9409468592edabe17a1dd27be'],
     scripts=[os.path.join('bin', script) for script in
              os.listdir(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'bin'))],
 )

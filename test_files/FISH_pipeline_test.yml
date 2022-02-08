@@ -10,9 +10,11 @@
 #  -analysisfolder: full path of folder where violin plots will be written. Example: "/DATA/lenstra_lab/XXXX/smFISH_analysis/analysis"
 
 folderIn: "demo_data/"
+
 fileListIn: ["20200107"]
+
 outputfolder: "demo_output"
-analysisfolder: "demo_output/analysis"
+analysisfolder: "demo_output"
 
 ### specify how many images per experiment and channels you want to analyze
 #  -processAll: 1 if you want to process all images (FOV) in the folder, if 0, specify nr of files you want to analyze
@@ -46,51 +48,52 @@ RunOptimizeThresh: 1
 RunLocalize: 1
 MakeMaskImage: 1
 MakeMontage: 1
-CalculateTranscriptionSites: 1
-MakeHistograms: 1
-CalcSingleCellCorr: 1
-Violins: 1
-CompareNormValues: 1
-CombineReps: 1
-UsePrecalcDistr: 1
+CellCycle: 0
+CalculateTranscriptionSites: 0
+MakeHistograms: 0
+CalcSingleCellCorr: 0
+Violins: 0
+CompareNormValues: 0
+CombineReps: 0
+UsePrecalcDistr: 0
 
 ##### Parameters max projection
 #  -zSlices: nr z slices, example: 9
 #  -nChannels: nr channels including DAPI channel, example for cy3-cy5-DAPI data: 3
 
-zSlices: 13
-nChannels: 2
+zSlices: 21
+nChannels: 3
 
 ##### Parameters for RunCellprofiler
 #  -PipelineCellProfiler: full path of cellprofiler pipeline. Only necessary if RunCellprofiler is run.
 
-PipelineCellProfiler: ""
+PipelineCellProfiler:
 
 ##### Parameters FindCells
 #  -channelCellMask: "Cy3" or "Cy5". Choose Cy3 or Cy5 for cell segmentation
 #  -ccdist: (approximate) minimum distance between the centers of cells, good values: yeast: 25, mammalian: 150
 #  Optional parameters to debug/finetune findcells:
-#  -threshold : pixel value used to threshold the image, default:Otsu
-#  -thresholdnuc : pixel value used to threshold the image with nuclei, default:Otsu
+#  -threshold : pixel value used to threshold the image, default:Otsu. To use default, type: None
+#  -thresholdnuc : pixel value used to threshold the image with nuclei, default:Otsu. To use default, type: None
 #  -removeborders : remove any cells (and their nuclei) touching any borders (case with nan's unhandled atm), default: True
 #  -thres: divide the image in thres x thres blocks and use a different threshold in each of them, the image size should be an integer multiple of thres. Example: 1
-#  -thresnuc: Example: 1
-#  -smooth: 5 #smooth the image before using it
-#  -smoothnuc: 3
+#  -thresnuc: example: 1
+#  -smooth: smooth the image before using it, example: 5
+#  -smoothnuc: example: 3
 #  -minfeatsize: remove features smaller than minfeatsize
-#  -minfeatsizenuc: 5
+#  -minfeatsizenuc: example: 5
 #  -dilate: dilate>0: make every cell dilate pixels larger; <0: make them smaller
-#  -dilatenuc: 3
+#  -dilatenuc: example: 3
 
-channelCellMask : "Cy3"
+channelCellMask : 'Cy5'
 ccdist : 25
 threshold : None
 thresholdnuc : None
 removeborders : True
 thres : 1
 thresnuc : 1
-smooth : 5
-smoothnuc : 3
+smooth : 3
+smoothnuc : 2.5
 minfeatsize : 5
 minfeatsizenuc : 5
 dilate : 3
@@ -107,15 +110,34 @@ dilatenuc : 3
 #  -winSize:  size of the window used for PSF fitting, example: 5
 #  -winSizeZ: size of the window used for PSF fitting in z, example: 3
 
-localizeDim : "2D"
-threshold_cy3: 75
-threshold_cy5: 20
-psfPx: 2.18
-psfPxZ : 0.93
+localizeDim : '3D'
+threshold_cy3: 80
+threshold_cy5: 83
+psfPx: 1.70
+psfPxZ : 1.55
 maxDist: 3.
 minSeparation: .1
 winSize : 5
 winSizeZ : 3
+
+##### Parameters CellCycle
+#   -maxxValHist: maximum value of x-axis for DAPI histogram
+#   -fitNucHistogram: Enter 0 or 1. This fits the bimodal distribution with Gaussians. Needs to be calculated for subsequent steps.
+#   -removeOutliers: Enter None or an integer (based on initial histogram). This will remove all elements in histogram that are above the input value.
+#   -sigmaG1cells: Enter z score (plus and minus) to get the desired classification of G1 cells in the distribution. i.e. [1,1]
+#   -sigmaG2cells: Enter z score (plus and minus) to get the desired classification of G2 cells in the distribution. i.e. [1,1]
+#   -manualThreshold: Enter 'None' to have the automated thresholds. Or enter a range (i.e. [3000,5000]) to provide a custom threshold. Results will be saved in subfolder named 'ManualThreshold'
+#   -CellCycleStages: Enter which stage you want analyzed. Four options are: ['G1cellswithbuds','G1cells','Scells','G2cells'].
+#   -makeMasks: Enter 0 or 1. This makes the cell and nuclear masks for the subset of cells that are selected based on the dapi thresholds. Masks are saved in the respective subfolders. Required for CalculateTranscriptionSites, MakeHistograms and CalcSingleCellCorr.
+
+maxxValHist: 2000000
+fitNucHistogram: 0
+removeOutliers: 1000000
+sigmaG1cells: [1,0.75]
+sigmaG2cells: [0.5,1.5]
+manualThreshold: None
+CellCycleStages: ['G1cellswithbuds','G1cells','Scells','G2cells']
+makeMasks: 1
 
 ##### Parameters Calculate TS
 #  -MaskTS : "nucleus " or "cell". Mask used for defining the TS (brightest spot)
@@ -131,16 +153,16 @@ winSizeZ : 3
 #  -thresholdTS : threshold used to determine if nuclear spot is TS (if includeMultTS is 1). The threshold indicates how many nascent RNAs need to present to qualify as TS (it is is multiplied by the normalization factor of the cytoplasmic spot intensity). Note, the results do not contain the cells without TS. Example: 1.5
 #  -nrTS2Include :number of TS to include in the analysis (if includeMultTS is 2). It will select the brightest spots as TS. Note, if less TS are found in a nucleus, the script will add a zero (so each cell will have same nr of TS). Example: 2
 
-MaskTS: "cell"
-AreaNorm: "cyto"
+MaskTS: 'cell'
+AreaNorm: 'cyto'
 ExclEmpty: 1
 useControlForEmptyCells: 0
 controlColor: 0
 useFit: 0
 useNormValue: 0
 NormValueCy3: 13384
-NormValueCy5: 4421
-includeMultTS: 0
+NormValueCy5: 2
+includeMultTS: 2
 thresholdTS: 1.5
 nrTS2Include: 2
 
@@ -163,34 +185,34 @@ nrTS2Include: 2
 
 exclBins: 0
 exclBinsCount: 0
-FitBurst: 1
-FitPoisson: 1
+FitBurst: 0
+FitPoisson: 0
 CalcFracOff: 1
 nrbins_cy3: 100
-nrbins_cy5: 300
-nrbins_cy3_ts: 15
-nrbins_cy5_ts: 15
+nrbins_cy5: 100
+nrbins_cy3_ts: 50
+nrbins_cy5_ts: 50
 freqAxisCell_cy3 : "None"
 freqAxisCell_cy5 : "None"
 freqAxisNuc_cy3 : "None"
 freqAxisNuc_cy5 : "None"
-freqAxisTS_cy3 :  0.1
-freqAxisTS_cy5 :  0.1
+freqAxisTS_cy3 : "None"
+freqAxisTS_cy5 : "None"
 
 ##### Parameters CalcSingleCellCorr
 #  -filterOnDistance: 0 or 1. Set to 1 if you want to filter on co-localized Cy3 - Cy5 spots, set threshold in distThresh
 #  -distThresh: threshold for determining co-localization, in pixels, example: 4
 #  -onoffThreshCy3: threshold to determine if cells are on or off in Cy3, example: 6
 #  -onoffThreshCy5: threshold to determine if cells are on or off in Cy5, example: 4
-#  -x_lim: max x value  for all TS correlation plots. Example: 50
-#  -y_lim: max y value for all TS correlation plotsl Example: 50
+#  -x_lim: tuple of x-lim for all TS correlation plots, with normal brackets. Example: (0,50)
+#  -y_lim: tuple of y-lim for all TS correlation plots, with normal brackes. Example: (0,50)
 
 filterOnDistance: 0
 distThresh: 4
-onoffThreshCy3: 6
-onoffThreshCy5: 4
-x_lim: 50
-y_lim: 50
+onoffThreshCy3: 2
+onoffThreshCy5: 2
+x_lim: (0,50)
+y_lim: (0,50)
 
 ##### Parameters for Violin plots
 #  -pvalsViolins: indicates between which datasets you want to calculate pvalues to be plotted in Violin plots. Starts numbering at 1. Leave empty ([[]]) if you don't want any pvalues calculated. Example: [[1,2][3,4]]
@@ -202,18 +224,14 @@ y_lim: 50
 #  -yAxisViolinTS_cy5:  scaling of y-axis of TS violin plot Cy5, example (automatically if "None"): 0.5 or "None"
 
 pvalsViolins: [[]]
-yAxisViolinCell_cy3: "None"
-yAxisViolinCell_cy5: "None"
-yAxisViolinNuc_cy3: "None"
-yAxisViolinNuc_cy5: "None"
-yAxisViolinTS_cy3:  "None"
-yAxisViolinTS_cy5:  "None"
+yAxisViolinCell_cy3: 100
+yAxisViolinCell_cy5: 100
+yAxisViolinNuc_cy3: 50
+yAxisViolinNuc_cy5: 50
+yAxisViolinTS_cy3: 40
+yAxisViolinTS_cy5: 10
 
 ##### Parameteres combine reps
 #  -repsToCombine:  #List how you want your replicates to be combined. Format as (for example) [[1,2,3],[4],[5,6]] etc. Make sure all dataset numbers are in this list; numbering starts at 1.
 
-repsToCombine: [[1,2]]
-CellCycle: 0
-fitNucHistogram: 0
-makeMasks: 0
-manualThreshold: "None"
+repsToCombine: [[]]
